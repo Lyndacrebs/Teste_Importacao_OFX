@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <Strong>Nome do site</Strong>
+        <label for="modal-toggle" class="btn-selecionar-arquivo">Adicionar novo OFX</label>
+    </header>
+
+
+
+    <!-- O TRUQUE: Checkbox invisível que controla tudo -->
+    <input type="checkbox" id="modal-toggle">
+
+    <!-- O MODAL (Começa invisível por causa do CSS) -->
+    <div class="modal-overlay">
+        <div class="modal-card">
+            
+            <!-- Botão de fechar (X) -->
+            <label for="modal-toggle" class="close-label">&times;</label>
+
+            <h3>Adicionar Arquivo</h3>
+
+            <div class="upload-area">
+                <img src="/images/icon-1.svg" alt="">
+                Arraste o arquivo aqui <br> ou <br>
+                <span class="browse-text">Procurar arquivo</span>
+            </div>
+
+            <button class="btn-enviar">Enviar</button>
+        </div>
+    </div>
+
+</head>
+<body>
+
+
