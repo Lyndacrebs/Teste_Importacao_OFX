@@ -1,13 +1,32 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
+from werkzeug.utils import secure_filename
+import os
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
+UPLOAD_FOLDER = 'uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
 
 @app.route("/")
 def index():
-    return render_template('index.html') #o que essa linhas faz? pra que serve o render_template?
+    return render_template('index.html')
 
-@app.route('/upload', methods=['POST']) #pra que serve o route?
+@app.route('/upload', methods=['POST'])
 def upload():
-    file = request.files['file'] #pra que serve o request?
+    if 'file' not in request.files:
+        return redirect('/')
+    
+    file = request.files['file']
+    
+    if file.filename == '':
+        return redirect('/')
+    
+    filename = secure_filename(file.filename)
+    file.save(os.path.join(UPLOAD_FOLDER, filename))
+    
+    return redirect('/')
 
-    file.save(f'uploads/{file.filename}') #salva o upload dentro de um diretório no projeto
+if __name__ == "__main__":
+    app.run(debug=True, port=5001)

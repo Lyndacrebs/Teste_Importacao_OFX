@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
     <header>
@@ -27,15 +27,15 @@
             <h3>Adicionar Arquivo</h3>
 
              <!-- AQUI ENTRA O FORM DO FLASK -->
-        <form action="/upload" method="post" enctype="multipart/form-data">
+        <form action="http://127.0.0.1:5001/upload" method="post" enctype="multipart/form-data">
         
 
             <div class="upload-area">
-                <img src="/images/icon-1.svg" alt="">
+                <img src="/static/images/icon-1.svg" alt="">
                 Arraste o arquivo aqui <br> ou <br>
 
                 <!-- Input file real (pode ser escondido visualmente) -->
-                <input type="file" name="file" id="file-input" style="display: none;" accept=".OFX,.xml">
+                <input type="file" name="file" id="file-input" style="display: none;" accept=".OFX,.xml,.pdf">
 
                 <!-- Label que aciona o input file -->
                 <label for="file-input" class="browse-text">Procurar arquivo</label>
@@ -44,13 +44,11 @@
                 <p id="file-name" style="margin-top: 10px; font-size: 12px;"></p>
             </div>
 
-            <button  type="submit" class="btn-enviar">Enviar</button>
+            <button type="submit" class="btn-enviar">Enviar</button>
         </form>
 
         </div>
     </div>
-
-</head>
 
 <!-- Script simples para mostrar o nome do arquivo -->
 <script>
@@ -60,6 +58,6 @@
         }
     });
 </script>
-<body>
-
+</body>
+</html>
 
