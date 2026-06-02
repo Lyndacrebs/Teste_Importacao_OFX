@@ -24,7 +24,6 @@ header{
             padding: 10px;
             border-radius: 20px;
             cursor: pointer;
-            display: inline-block;
             float: right; /* Para ficar no canto direito como na sua foto */
         }
 

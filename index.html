@@ -26,17 +26,40 @@
 
             <h3>Adicionar Arquivo</h3>
 
+             <!-- AQUI ENTRA O FORM DO FLASK -->
+        <form action="/upload" method="post" enctype="multipart/form-data">
+        
+
             <div class="upload-area">
                 <img src="/images/icon-1.svg" alt="">
                 Arraste o arquivo aqui <br> ou <br>
-                <span class="browse-text">Procurar arquivo</span>
+
+                <!-- Input file real (pode ser escondido visualmente) -->
+                <input type="file" name="file" id="file-input" style="display: none;" accept=".OFX,.xml">
+
+                <!-- Label que aciona o input file -->
+                <label for="file-input" class="browse-text">Procurar arquivo</label>
+
+                <!-- Mostra o nome do arquivo selecionado -->
+                <p id="file-name" style="margin-top: 10px; font-size: 12px;"></p>
             </div>
 
             <button class="btn-enviar">Enviar</button>
+        </form>
+
         </div>
     </div>
 
 </head>
+
+<!-- Script simples para mostrar o nome do arquivo -->
+<script>
+    document.getElementById('file-input').addEventListener('change', function(e) {
+        if (e.target.files.length > 0) {
+            document.getElementById('file-name').textContent = 'Arquivo: ' + e.target.files[0].name;
+        }
+    });
+</script>
 <body>
 
 
