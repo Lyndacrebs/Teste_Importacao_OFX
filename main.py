@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect,  flash
 # Flask: cria o servidor web
 # render_template: envia arquivos HTML para o navegador
 # request: pega os dados enviados pelo usuário (como o arquivo)
@@ -26,6 +26,14 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER # Salva essa configuração no app p
 if not os.path.exists(UPLOAD_FOLDER): # Cria a pasta 'uploads' automaticamente se ela não existir
     os.makedirs(UPLOAD_FOLDER)
 # Isso evita erro na primeira vez que rodar o código
+
+# Define quais extensões são permitidas (apenas OFX)
+ALLOWED_EXTENSIONS = {'ofx'}
+
+def allowed_file(filename): #Verifica se o arquivo tem uma extensão permitida.
+
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 # ============================================
@@ -57,9 +65,13 @@ def upload():
     filename = secure_filename(file.filename)
 
 
-    
+    #5️⃣ validação de tipo de arquivo
+    if not allowed_file(filename):
+        print(f"❌ BLOQUEADO: O arquivo '{filename}' não é um OFX válido.")
+        print("   Apenas arquivos com extensão .ofx são permitidos.")
+        return redirect('/')  # Volta para a tela inicial sem salvar nada
 
-    # 5️⃣ Cria o caminho completo: "uploads/meu_arquivo.pdf" e salva o arquivo no disco
+    # 6️⃣ Cria o caminho completo: "uploads/meu_arquivo.pdf" e salva o arquivo no disco
     filepath = os.path.join(UPLOAD_FOLDER, filename)  # ← Cria a variável
     file.save(filepath)
 
