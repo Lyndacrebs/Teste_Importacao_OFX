@@ -1,0 +1,32 @@
+# Python - ignora TODOS os __pycache__ e .pyc
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environment
+venv/
+env/
+env.bak/
+
+# IDE (VS Code, PyCharm, etc)
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Uploads (arquivos enviados)
+uploads/*
+!uploads/.gitkeep
+
+# Banco de dados SQLite
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+
+# Environment variables
+.env
+.env.local
