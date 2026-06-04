@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, redirect,  flash
 # render_template: envia arquivos HTML para o navegador
 # request: pega os dados enviados pelo usuário (como o arquivo)
 # redirect: redireciona o usuário para outra página
+# flash  permite enviar mensagens do backend para o frontend
 
 from werkzeug.utils import secure_filename
 # secure_filename: limpa o nome do arquivo para evitar ataques
@@ -19,13 +20,11 @@ from ofxparse import OfxParser
 app = Flask(__name__, static_folder='static')# Cria a aplicação Flask
 # static_folder='static': diz que CSS, JS e imagens estão na pasta 'static/'
 
+app.secret_key = 'chave_secreta_123' #O Flask usa a secret_key para criptografar os cookies do navegador.
+
 UPLOAD_FOLDER = 'uploads' # Define o nome da pasta onde os uploads serão salvos
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER # Salva essa configuração no app para usar depois
-
-if not os.path.exists(UPLOAD_FOLDER): # Cria a pasta 'uploads' automaticamente se ela não existir
-    os.makedirs(UPLOAD_FOLDER)
-# Isso evita erro na primeira vez que rodar o código
 
 # Define quais extensões são permitidas (apenas OFX)
 ALLOWED_EXTENSIONS = {'ofx'}
@@ -34,6 +33,12 @@ def allowed_file(filename): #Verifica se o arquivo tem uma extensão permitida.
 
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+if not os.path.exists(UPLOAD_FOLDER): # Cria a pasta 'uploads' automaticamente se ela não existir
+    os.makedirs(UPLOAD_FOLDER)
+# Isso evita erro na primeira vez que rodar o código
+
 
 
 # ============================================
@@ -51,6 +56,8 @@ def upload():
 
         # 1️⃣ Verifica se veio um arquivo na requisição
     if 'file' not in request.files: # request.files é um dicionário com todos os arquivos enviados
+
+        flash('❌ Nenhum arquivo foi enviado.', 'erro')
         return redirect('/')# Se não tiver arquivo, volta pra página inicial
     
     # 2️⃣ Pega o arquivo enviado (o nome 'file' deve bater com o name="" do input no html)
@@ -67,8 +74,11 @@ def upload():
 
     #5️⃣ validação de tipo de arquivo
     if not allowed_file(filename):
-        print(f"❌ BLOQUEADO: O arquivo '{filename}' não é um OFX válido.")
-        print("   Apenas arquivos com extensão .ofx são permitidos.")
+
+        print(f'❌ O arquivo "{filename}" não é um OFX válido. Apenas arquivos .ofx são permitidos.')
+
+        flash(f'O arquivo "{filename}" não é um OFX válido. Apenas arquivos .ofx são permitidos.', 'erro')
+        
         return redirect('/')  # Volta para a tela inicial sem salvar nada
 
     # 6️⃣ Cria o caminho completo: "uploads/meu_arquivo.pdf" e salva o arquivo no disco
@@ -107,6 +117,10 @@ def upload():
                 
                 # Imprime no formato que você pediu: "DESCRIÇÃO VALOR"
                 print(f"{descricao.upper():<40} R$ {valor:>10.2f}")
+
+            print(f'✅ Arquivo "{filename}" processado com sucesso!')
+
+            flash(f'✅ Arquivo "{filename}" processado com sucesso!', 'sucesso')
 
         except Exception as e:
             print(f"❌ Erro ao ler OFX: {type(e).__name__}")

@@ -7,6 +7,24 @@
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
+
+    <!-- ÁREA DE MENSAGENS FLASH MESSAGES -->
+     <!--recupera e exibe o flash que o Flask armazenou temporariamente na sessão do usuário-->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alertas-container">
+                {% for category, message in messages %}
+                    <div class="alerta {{ category }}">
+                        <span>{{ message }}</span>
+                        <button onclick="this.parentElement.remove()" class="fechar-alerta">&times;</button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+
+
     <header>
         <Strong>Nome do site</Strong>
         <label for="modal-toggle" class="btn-selecionar-arquivo">Adicionar novo OFX</label>
