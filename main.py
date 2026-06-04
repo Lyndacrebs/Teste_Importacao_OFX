@@ -9,6 +9,8 @@ from werkzeug.utils import secure_filename
 import os
 # os: permite trabalhar com pastas e arquivos do sistema
 
+from ofxparse import OfxParser  
+#biblioteca para ler OFX
 
 # ============================================
 # CONFIGURAÇÃO DO FLASK
@@ -54,11 +56,57 @@ def upload():
     # Remove caracteres perigosos como / \ .. etc.
     filename = secure_filename(file.filename)
 
-    # 5️⃣ Cria o caminho completo: "uploads/meu_arquivo.pdf" e salva o arquivo no disco
-    file.save(os.path.join(UPLOAD_FOLDER, filename))
+
     
-    # 7️⃣ Redireciona de volta para a página inicial
-    return redirect('/')# O navegador faz uma nova requisição GET para "/"
+
+    # 5️⃣ Cria o caminho completo: "uploads/meu_arquivo.pdf" e salva o arquivo no disco
+    filepath = os.path.join(UPLOAD_FOLDER, filename)  # ← Cria a variável
+    file.save(filepath)
+
+
+
+
+# ==========================================
+# LEITURA OFX
+# ==========================================
+ # Verifica se o arquivo é .ofx antes de tentar ler
+    if filename.lower().endswith('.ofx'):
+        print("🔍 Tentando ler arquivo OFX...")
+        try:
+            # Abre o arquivo OFX que acabou de ser salvo
+            with open(filepath, 'rb') as ofx_file:
+                print("📖 Arquivo aberto com sucesso!")
+                ofx = OfxParser.parse(ofx_file)
+                print("✅ OFX parseado com sucesso!")
+
+            
+            account = ofx.account    # Acessa a conta (geralmente só tem uma no arquivo)
+
+            statement = account.statement # Acessa o extrato
+
+
+            # Percorre todas as transações do extrato
+            for transaction in statement.transactions:
+                # Pega a descrição (memo é mais detalhado, payee é o nome)
+                descricao = transaction.memo or transaction.payee or "Sem descrição"
+                
+                # Formata o valor com 2 casas decimais
+                valor = float(transaction.amount)
+                
+                # Imprime no formato que você pediu: "DESCRIÇÃO VALOR"
+                print(f"{descricao.upper():<40} R$ {valor:>10.2f}")
+
+        except Exception as e:
+            print(f"❌ Erro ao ler OFX: {type(e).__name__}")
+            print(f"❌ Detalhes: {e}")
+            import traceback
+            traceback.print_exc()
+    
+    else:
+        print(f"⚠️  Arquivo {filename} não é um OFX. Apenas salvo.")
+    
+    # 3️⃣ Volta para a página inicial
+    return redirect('/')
 
 
 
@@ -72,8 +120,3 @@ if __name__ == "__main__":
     app.run(debug=True, port=5001) #mostra erros detalhados e recarrega ao salvar o arquivo
 
     #usa a porta 5001 (para não conflitar com outras coisas)
-
-
-
-
-
