@@ -4,18 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Financeiro</title>
+
+    <!-- Estilos visuais do dashboard (cores, layout, cards, gráficos) -->
     <link rel="stylesheet" href="/static/css/dashboard.css">
-    <!-- Plotly.js: necessário para renderizar os gráficos gerados pelo Python -->
+
+    <!-- Plotly.js: biblioteca JavaScript necessária para renderizar os gráficos gerados pelo Python.
+         Carregada via CDN para não precisar embutir o arquivo no projeto. -->
     <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
 </head>
 <body>
 
+    <!-- ===== ALERTAS FLASH =====
+         Mensagens enviadas pelo Flask (flash()) após ações do usuário,
+         como upload de arquivo ou atualização de orçamento.
+         with_categories=true traz a categoria junto ('sucesso' ou 'erro')
+         para que o CSS aplique a cor certa no alerta. -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             <div class="alertas-container">
                 {% for category, message in messages %}
+                    <!-- A categoria vira classe CSS: .alerta.sucesso ou .alerta.erro -->
                     <div class="alerta {{ category }}">
                         <span>{{ message }}</span>
+                        <!-- Botão X que remove o alerta da tela sem precisar recarregar a página -->
                         <button onclick="this.parentElement.remove()" class="fechar-alerta">&times;</button>
                     </div>
                 {% endfor %}
@@ -23,6 +34,8 @@
         {% endif %}
     {% endwith %}
 
+    <!-- ===== CABEÇALHO =====
+         Barra superior com o título e o link para voltar à tela de importação. -->
     <header>
         <strong>Dashboard Financeiro</strong>
         <a href="/" class="btn-nav">Importar OFX</a>
@@ -30,22 +43,37 @@
 
     <main class="container">
 
-        <!-- Cards de Resumo -->
+        <!-- ===== CARDS DE RESUMO =====
+             Quatro cards numéricos exibidos no topo: receita, despesa, saldo e orçamento.
+             "%.2f"|format() formata o número com 2 casas decimais (ex: 1234.50). -->
         <section class="cards-grid">
+
+            <!-- Card 1: Receita total — sempre verde -->
             <div class="card">
                 <span class="card-label">Receita Total</span>
                 <span class="card-valor verde">R$ {{ "%.2f"|format(resumo.receita) }}</span>
             </div>
+
+            <!-- Card 2: Despesa total — sempre vermelho -->
             <div class="card">
                 <span class="card-label">Despesa Total</span>
                 <span class="card-valor vermelho">R$ {{ "%.2f"|format(resumo.despesa) }}</span>
             </div>
+
+            <!-- Card 3: Saldo atual (receita - despesa)
+                 Cor muda conforme o valor: verde se positivo, vermelho se negativo -->
             <div class="card">
                 <span class="card-label">Saldo Atual</span>
                 <span class="card-valor {{ 'verde' if resumo.saldo >= 0 else 'vermelho' }}">
                     R$ {{ "%.2f"|format(resumo.saldo) }}
                 </span>
             </div>
+
+            <!-- Card 4: Percentual do orçamento mensal já utilizado
+                 Três faixas de cor:
+                   - vermelho: orçamento não definido (0) ou estourado (>100%)
+                   - amarelo:  acima de 80% — alerta de proximidade do limite
+                   - verde:    consumo saudável (até 80%) -->
             <div class="card">
                 <span class="card-label">Orçamento Utilizado</span>
                 <span class="card-valor
@@ -55,38 +83,61 @@
                     {{ perc_orcamento }}%
                 </span>
             </div>
+
         </section>
 
-        <!-- Linha 1: Gastos por Categoria | Receitas x Despesas -->
+        <!-- ===== LINHA 1 DE GRÁFICOS =====
+             Dois gráficos lado a lado: pizza de categorias e barras mensais.
+             O HTML de cada gráfico vem pronto do Python via Plotly.
+             | safe é obrigatório para que o Jinja2 não escape as tags HTML do gráfico. -->
         <section class="graficos-grid">
+
+            <!-- Gráfico de rosca: quanto foi gasto em cada categoria -->
             <div class="card grafico-card">
                 <h3>Gastos por Categoria</h3>
                 {{ chart_pizza | safe }}
             </div>
+
+            <!-- Gráfico de barras: receitas versus despesas mês a mês -->
             <div class="card grafico-card">
                 <h3>Receitas x Despesas por Mês</h3>
                 {{ chart_barras | safe }}
             </div>
+
         </section>
 
-        <!-- Linha 2: Evolução do Saldo (largo) | Orçamento (estreito) -->
+        <!-- ===== LINHA 2 DE GRÁFICOS =====
+             Layout assimétrico: gráfico de linha (mais largo) + gauge com formulário (mais estreito).
+             A classe graficos-grid-asym define a proporção no CSS. -->
         <section class="graficos-grid-asym">
+
+            <!-- Gráfico de linha: evolução do saldo acumulado ao longo do tempo -->
             <div class="card grafico-card">
                 <h3>Evolução do Saldo</h3>
                 {{ chart_linha | safe }}
             </div>
+
+            <!-- Gauge (velocímetro) + formulário para definir o orçamento mensal -->
             <div class="card grafico-card">
                 <h3>Orçamento Mensal</h3>
+
+                <!-- Velocímetro que mostra quanto do orçamento foi consumido -->
                 {{ chart_gauge | safe }}
+
+                <!-- Formulário para o usuário definir ou atualizar o orçamento mensal.
+                     Envia um POST para /dashboard/orcamento ao clicar em Salvar. -->
                 <form action="/dashboard/orcamento" method="post" class="form-orcamento">
                     <label for="orcamento-input">Definir orçamento (R$):</label>
                     <div class="input-row">
+                        <!-- value="{{ orcamento }}" pré-preenche com o valor já salvo -->
+                        <!-- step="0.01" permite centavos; min="0" bloqueia valores negativos no navegador -->
                         <input type="number" name="orcamento" id="orcamento-input"
                                value="{{ orcamento }}" step="0.01" min="0">
                         <button type="submit">Salvar</button>
                     </div>
                 </form>
             </div>
+
         </section>
 
     </main>
