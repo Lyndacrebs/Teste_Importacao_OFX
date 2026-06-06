@@ -3,6 +3,7 @@ from config import Config
 from services.database import criar_tabelas, inicializar_categorias
 from services.categorizador import CATEGORIAS
 from routes.importacao import importacao_bp
+from routes.dashboard import dashboard_bp
 import os
 
 
@@ -27,6 +28,7 @@ def create_app():
     
     # Registra blueprints (rotas)
     app.register_blueprint(importacao_bp)
+    app.register_blueprint(dashboard_bp)
     
     return app
 

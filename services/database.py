@@ -65,6 +65,18 @@ def criar_tabelas(): #Cria as tabelas no banco se elas ainda não existirem.
         )
     ''')
     
+    # Tabela: configuracoes (chave/valor para orçamento e futuras configurações)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS configuracoes (
+            chave TEXT PRIMARY KEY,
+            valor TEXT NOT NULL
+        )
+    ''')
+    # Garante valor padrão para orçamento
+    cursor.execute(
+        "INSERT OR IGNORE INTO configuracoes (chave, valor) VALUES ('orcamento_mensal', '0')"
+    )
+
     conexao.commit()
     cursor.close()
     conexao.close()

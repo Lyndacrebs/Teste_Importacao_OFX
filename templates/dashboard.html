@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Financeiro</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <!-- Plotly.js: necessário para renderizar os gráficos gerados pelo Python -->
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+</head>
+<body>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alertas-container">
+                {% for category, message in messages %}
+                    <div class="alerta {{ category }}">
+                        <span>{{ message }}</span>
+                        <button onclick="this.parentElement.remove()" class="fechar-alerta">&times;</button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <header>
+        <strong>Dashboard Financeiro</strong>
+        <a href="/" class="btn-nav">Importar OFX</a>
+    </header>
+
+    <main class="container">
+
+        <!-- Cards de Resumo -->
+        <section class="cards-grid">
+            <div class="card">
+                <span class="card-label">Receita Total</span>
+                <span class="card-valor verde">R$ {{ "%.2f"|format(resumo.receita) }}</span>
+            </div>
+            <div class="card">
+                <span class="card-label">Despesa Total</span>
+                <span class="card-valor vermelho">R$ {{ "%.2f"|format(resumo.despesa) }}</span>
+            </div>
+            <div class="card">
+                <span class="card-label">Saldo Atual</span>
+                <span class="card-valor {{ 'verde' if resumo.saldo >= 0 else 'vermelho' }}">
+                    R$ {{ "%.2f"|format(resumo.saldo) }}
+                </span>
+            </div>
+            <div class="card">
+                <span class="card-label">Orçamento Utilizado</span>
+                <span class="card-valor
+                    {%- if orcamento == 0 or perc_orcamento > 100 %} vermelho
+                    {%- elif perc_orcamento > 80 %} amarelo
+                    {%- else %} verde{% endif %}">
+                    {{ perc_orcamento }}%
+                </span>
+            </div>
+        </section>
+
+        <!-- Linha 1: Gastos por Categoria | Receitas x Despesas -->
+        <section class="graficos-grid">
+            <div class="card grafico-card">
+                <h3>Gastos por Categoria</h3>
+                {{ chart_pizza | safe }}
+            </div>
+            <div class="card grafico-card">
+                <h3>Receitas x Despesas por Mês</h3>
+                {{ chart_barras | safe }}
+            </div>
+        </section>
+
+        <!-- Linha 2: Evolução do Saldo (largo) | Orçamento (estreito) -->
+        <section class="graficos-grid-asym">
+            <div class="card grafico-card">
+                <h3>Evolução do Saldo</h3>
+                {{ chart_linha | safe }}
+            </div>
+            <div class="card grafico-card">
+                <h3>Orçamento Mensal</h3>
+                {{ chart_gauge | safe }}
+                <form action="/dashboard/orcamento" method="post" class="form-orcamento">
+                    <label for="orcamento-input">Definir orçamento (R$):</label>
+                    <div class="input-row">
+                        <input type="number" name="orcamento" id="orcamento-input"
+                               value="{{ orcamento }}" step="0.01" min="0">
+                        <button type="submit">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+    </main>
+
+</body>
+</html>
