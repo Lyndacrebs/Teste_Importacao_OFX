@@ -41,3 +41,5 @@ uploads/*
 uploads/*
 !uploads/.gitkeep
 
+# textos
+teste.md
